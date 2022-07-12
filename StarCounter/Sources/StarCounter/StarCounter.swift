@@ -34,6 +34,10 @@ public class StarCounter<Storage: StarredMessageStorage>: ListenerAdapter {
             originalMessageID = Snowflake(existing.originalMessageID)
             channelID = Snowflake(existing.originalChannelID)
             boardMessageID = Snowflake(existing.starboardMessageID)
+        } else if let existing = try? await self.starredMessages.fetch(whereOriginalMessageID: messageId.rawValue), existing.originalChannelID == channel.id.rawValue {
+            originalMessageID = Snowflake(existing.originalMessageID)
+            channelID = channel.id
+            boardMessageID = Snowflake(existing.starboardMessageID)
         } else {
             originalMessageID = messageId
             channelID = channel.id
