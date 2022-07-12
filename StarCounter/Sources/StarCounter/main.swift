@@ -11,11 +11,14 @@ import NIO
 
 let eventLoop = MultiThreadedEventLoopGroup(numberOfThreads: 4)
 let settings = Settings()
+let starredMessages = MemoryStarredMessageStorage()
 
 let bot = Swiftcord(
     token: settings.token,
     eventLoopGroup: eventLoop
 )
+
+let listener = StarCounter(bot: bot, settings: settings, starredMessages: starredMessages)
 
 let activity = Activities(name: "for stars", type: .watching)
 bot.editStatus(status: .online, activity: activity)
@@ -24,5 +27,5 @@ bot.editStatus(status: .online, activity: activity)
 bot.setIntents(intents: .guildMessages)
 bot.setIntents(intents: .guildMessageReactions)
 
-bot.addListeners(StarCounter(bot: bot, settings: settings))
+bot.addListeners(listener)
 bot.connect()
