@@ -72,14 +72,15 @@ public class StarCounter<Storage: StarredMessageStorage>: ListenerAdapter {
 
         if let boardMessageID {
             do {
-                try await self.bot!.editMessage(boardMessageID, with: ["embeds": [embed]], in: channel)
+                
+                try await self.bot!.editMessage(boardMessageID, with: ["embeds": [embed.dictionary()]], in: channel)
                 NSLog("Message edited successfully")
             } catch {
                 NSLog("Failed to update message \(boardMessageID) in \(channel)")
             }
         } else {
             do {
-                let boardMessage = try await self.bot!.send(embed, to: channel)
+                let boardMessage = try await self.bot!.send(embed.builder(), to: channel)
                 NSLog("Message Sent Succssfully")
                 
                 let stored = StarredMessage(originalMessageID: message.id.rawValue, originalChannelID: message.channel.id.rawValue, starboardMessageID: boardMessage.id.rawValue)
@@ -93,32 +94,31 @@ public class StarCounter<Storage: StarredMessageStorage>: ListenerAdapter {
         }
     }
     
-    private func buildEmbed(for message: Message, withCount count: Int) async -> EmbedBuilder {
-        let embed = EmbedBuilder()
+    private func buildEmbed(for message: Message, withCount count: Int) async -> Embed {
+        var embed = Embed()
         
         if let user = message.author,
            let username = user.username,
             let discriminator = user.discriminator {
-            _ = embed.setAuthor(
-                name: "\(username)#\(discriminator)",
-                iconUrl: user.imageUrl()?.absoluteString
-            )
+            embed.author = Embed.Author(name: "\(username)#\(discriminator)", iconUrl:  user.imageUrl()?.absoluteString)
         }
         
-        _ = embed.addField("Channel:", value: "<#\(message.channel.id)>")
-        _ = embed.addField("Content:", value: message.content)
-        _ = embed.addField("Count:", value: "\(count)")
+        embed.fields = [
+            .init(name: "Channel:", value: "<#\(message.channel.id)>"),
+            .init(name: "Content:", value: message.content),
+            .init(name: "Count:", value: "\(count)"),
+        ]
         
         if let attachment = message.attachments.last {
-            _ = embed.setImage(url: attachment.url)
+            embed.image = Embed.File(url: attachment.url)
         }
         
         if let referenced = message.refrencedMessage {
-            _ = embed.addField("Replying to:", value: referenced)
+            embed.fields.append(.init(name: "Replying to:", value: referenced))
         }
         
         if let messageURL = message.messageURL {
-            _ = embed.addField("Original Message:", value: messageURL.absoluteString)
+            embed.fields.append(.init(name: "Original Message:", value: messageURL.absoluteString))
         }
         return embed
     }
