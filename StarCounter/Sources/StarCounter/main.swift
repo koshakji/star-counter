@@ -10,9 +10,10 @@ import Swiftcord
 import NIO
 
 let eventLoop = MultiThreadedEventLoopGroup(numberOfThreads: 4)
+let settings = Settings()
 
 let bot = Swiftcord(
-    token: "",
+    token: settings.token,
     eventLoopGroup: eventLoop
 )
 
@@ -23,5 +24,5 @@ bot.editStatus(status: .online, activity: activity)
 bot.setIntents(intents: .guildMessages)
 bot.setIntents(intents: .guildMessageReactions)
 
-bot.addListeners(StarCounter(bot: bot))
+bot.addListeners(StarCounter(bot: bot, settings: settings))
 bot.connect()

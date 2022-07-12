@@ -6,9 +6,9 @@ public class StarCounter: ListenerAdapter {
     private weak var bot: Swiftcord?
     private var settings: Settings
     
-    init(bot: Swiftcord) {
+    init(bot: Swiftcord, settings: Settings) {
         self.bot = bot
-        self.settings = Settings()
+        self.settings = settings
     }
     
     public override func onMessageReactionAdd(channel: Channel, messageId: Snowflake, userId: Snowflake, emoji: Emoji) async {
